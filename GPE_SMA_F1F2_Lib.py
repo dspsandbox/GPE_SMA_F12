@@ -10,7 +10,7 @@ from scipy.constants import physical_constants
 
 
 
-def SMA_GPE_F12_simulation(t,wavefunction1,wavefunction2,atomNumber_,Veff_,q_,g1_1_, g2_1_,g2_2_,g12_1_,g12_2_,hbar_=physical_constants["Planck constant over 2 pi"][0]):
+def SMA_GPE_F12_simulation(t,wavefunction1,wavefunction2,Veff_,q_,g1_1_, g2_1_,g2_2_,g12_1_,g12_2_,hbar_=physical_constants["Planck constant over 2 pi"][0]):
 
 	##############################################################################################
 	# Order parameters, coeff, operators...
@@ -49,7 +49,6 @@ def SMA_GPE_F12_simulation(t,wavefunction1,wavefunction2,atomNumber_,Veff_,q_,g1
 	w2_cc=(sy.Matrix([w2_p2_cc,w2_p1_cc,w2_0_cc,w2_m1_cc,w2_m2_cc])).transpose()
 
 	# Global param
-	atomNumber=sy.Symbol("atomNumber")
 	Veff=sy.Symbol("Veff")
 
 	# Single particle contributions 
@@ -108,28 +107,28 @@ def SMA_GPE_F12_simulation(t,wavefunction1,wavefunction2,atomNumber_,Veff_,q_,g1
 	e=Q1+Q2 
 
 	#F=1
-	e+=1/2*atomNumber/Veff*g1_1*(F1_x_mf**2+F1_y_mf**2+F1_z_mf**2)
+	e+=1/(2*Veff)*g1_1*(F1_x_mf**2+F1_y_mf**2+F1_z_mf**2)
 
 	#F=2
-	e+=1/2*atomNumber/Veff*(g2_1*(F2_x_mf**2+F2_y_mf**2+F2_z_mf**2)+g2_2*A2_0*A2_0_cc)
+	e+=1/(2*Veff)*(g2_1*(F2_x_mf**2+F2_y_mf**2+F2_z_mf**2)+g2_2*A2_0*A2_0_cc)
 
 	#F=1 & F=2
-	e+=atomNumber/Veff*(g12_1*(F1_z_mf*F2_z_mf)+g12_2*P12_1)
+	e+=1/Veff*(g12_1*(F1_z_mf*F2_z_mf)+g12_2*P12_1)
 
 	##############################################################################################
 	# Time derivative functions
 	##############################################################################################
 
 
-	Dw1_p1__Dt_func=sy.lambdify((w1_p1,w1_0,w1_m1,w2_p2,w2_p1,w2_0,w2_m1,w2_m2,w1_p1_cc,w1_0_cc,w1_m1_cc,w2_p2_cc,w2_p1_cc,w2_0_cc,w2_m1_cc,w2_m2_cc,g1_1,g2_1,g2_2,g12_1,g12_2,hbar,q,atomNumber,Veff),1/(1j*hbar)*sy.diff(e,w1_p1_cc))
-	Dw1_0__Dt_func= sy.lambdify((w1_p1,w1_0,w1_m1,w2_p2,w2_p1,w2_0,w2_m1,w2_m2,w1_p1_cc,w1_0_cc,w1_m1_cc,w2_p2_cc,w2_p1_cc,w2_0_cc,w2_m1_cc,w2_m2_cc,g1_1,g2_1,g2_2,g12_1,g12_2,hbar,q,atomNumber,Veff),1/(1j*hbar)*sy.diff(e,w1_0_cc))
-	Dw1_m1__Dt_func=sy.lambdify((w1_p1,w1_0,w1_m1,w2_p2,w2_p1,w2_0,w2_m1,w2_m2,w1_p1_cc,w1_0_cc,w1_m1_cc,w2_p2_cc,w2_p1_cc,w2_0_cc,w2_m1_cc,w2_m2_cc,g1_1,g2_1,g2_2,g12_1,g12_2,hbar,q,atomNumber,Veff),1/(1j*hbar)*sy.diff(e,w1_m1_cc))
+	Dw1_p1__Dt_func=sy.lambdify((w1_p1,w1_0,w1_m1,w2_p2,w2_p1,w2_0,w2_m1,w2_m2,w1_p1_cc,w1_0_cc,w1_m1_cc,w2_p2_cc,w2_p1_cc,w2_0_cc,w2_m1_cc,w2_m2_cc,g1_1,g2_1,g2_2,g12_1,g12_2,hbar,q,Veff),1/(1j*hbar)*sy.diff(e,w1_p1_cc))
+	Dw1_0__Dt_func= sy.lambdify((w1_p1,w1_0,w1_m1,w2_p2,w2_p1,w2_0,w2_m1,w2_m2,w1_p1_cc,w1_0_cc,w1_m1_cc,w2_p2_cc,w2_p1_cc,w2_0_cc,w2_m1_cc,w2_m2_cc,g1_1,g2_1,g2_2,g12_1,g12_2,hbar,q,Veff),1/(1j*hbar)*sy.diff(e,w1_0_cc))
+	Dw1_m1__Dt_func=sy.lambdify((w1_p1,w1_0,w1_m1,w2_p2,w2_p1,w2_0,w2_m1,w2_m2,w1_p1_cc,w1_0_cc,w1_m1_cc,w2_p2_cc,w2_p1_cc,w2_0_cc,w2_m1_cc,w2_m2_cc,g1_1,g2_1,g2_2,g12_1,g12_2,hbar,q,Veff),1/(1j*hbar)*sy.diff(e,w1_m1_cc))
 
-	Dw2_p2__Dt_func=sy.lambdify((w1_p1,w1_0,w1_m1,w2_p2,w2_p1,w2_0,w2_m1,w2_m2,w1_p1_cc,w1_0_cc,w1_m1_cc,w2_p2_cc,w2_p1_cc,w2_0_cc,w2_m1_cc,w2_m2_cc,g1_1,g2_1,g2_2,g12_1,g12_2,hbar,q,atomNumber,Veff),1/(1j*hbar)*sy.diff(e,w2_p2_cc))
-	Dw2_p1__Dt_func=sy.lambdify((w1_p1,w1_0,w1_m1,w2_p2,w2_p1,w2_0,w2_m1,w2_m2,w1_p1_cc,w1_0_cc,w1_m1_cc,w2_p2_cc,w2_p1_cc,w2_0_cc,w2_m1_cc,w2_m2_cc,g1_1,g2_1,g2_2,g12_1,g12_2,hbar,q,atomNumber,Veff),1/(1j*hbar)*sy.diff(e,w2_p1_cc))
-	Dw2_0__Dt_func= sy.lambdify((w1_p1,w1_0,w1_m1,w2_p2,w2_p1,w2_0,w2_m1,w2_m2,w1_p1_cc,w1_0_cc,w1_m1_cc,w2_p2_cc,w2_p1_cc,w2_0_cc,w2_m1_cc,w2_m2_cc,g1_1,g2_1,g2_2,g12_1,g12_2,hbar,q,atomNumber,Veff),1/(1j*hbar)*sy.diff(e,w2_0_cc))
-	Dw2_m1__Dt_func=sy.lambdify((w1_p1,w1_0,w1_m1,w2_p2,w2_p1,w2_0,w2_m1,w2_m2,w1_p1_cc,w1_0_cc,w1_m1_cc,w2_p2_cc,w2_p1_cc,w2_0_cc,w2_m1_cc,w2_m2_cc,g1_1,g2_1,g2_2,g12_1,g12_2,hbar,q,atomNumber,Veff),1/(1j*hbar)*sy.diff(e,w2_m1_cc))
-	Dw2_m2__Dt_func=sy.lambdify((w1_p1,w1_0,w1_m1,w2_p2,w2_p1,w2_0,w2_m1,w2_m2,w1_p1_cc,w1_0_cc,w1_m1_cc,w2_p2_cc,w2_p1_cc,w2_0_cc,w2_m1_cc,w2_m2_cc,g1_1,g2_1,g2_2,g12_1,g12_2,hbar,q,atomNumber,Veff),1/(1j*hbar)*sy.diff(e,w2_m2_cc))
+	Dw2_p2__Dt_func=sy.lambdify((w1_p1,w1_0,w1_m1,w2_p2,w2_p1,w2_0,w2_m1,w2_m2,w1_p1_cc,w1_0_cc,w1_m1_cc,w2_p2_cc,w2_p1_cc,w2_0_cc,w2_m1_cc,w2_m2_cc,g1_1,g2_1,g2_2,g12_1,g12_2,hbar,q,Veff),1/(1j*hbar)*sy.diff(e,w2_p2_cc))
+	Dw2_p1__Dt_func=sy.lambdify((w1_p1,w1_0,w1_m1,w2_p2,w2_p1,w2_0,w2_m1,w2_m2,w1_p1_cc,w1_0_cc,w1_m1_cc,w2_p2_cc,w2_p1_cc,w2_0_cc,w2_m1_cc,w2_m2_cc,g1_1,g2_1,g2_2,g12_1,g12_2,hbar,q,Veff),1/(1j*hbar)*sy.diff(e,w2_p1_cc))
+	Dw2_0__Dt_func= sy.lambdify((w1_p1,w1_0,w1_m1,w2_p2,w2_p1,w2_0,w2_m1,w2_m2,w1_p1_cc,w1_0_cc,w1_m1_cc,w2_p2_cc,w2_p1_cc,w2_0_cc,w2_m1_cc,w2_m2_cc,g1_1,g2_1,g2_2,g12_1,g12_2,hbar,q,Veff),1/(1j*hbar)*sy.diff(e,w2_0_cc))
+	Dw2_m1__Dt_func=sy.lambdify((w1_p1,w1_0,w1_m1,w2_p2,w2_p1,w2_0,w2_m1,w2_m2,w1_p1_cc,w1_0_cc,w1_m1_cc,w2_p2_cc,w2_p1_cc,w2_0_cc,w2_m1_cc,w2_m2_cc,g1_1,g2_1,g2_2,g12_1,g12_2,hbar,q,Veff),1/(1j*hbar)*sy.diff(e,w2_m1_cc))
+	Dw2_m2__Dt_func=sy.lambdify((w1_p1,w1_0,w1_m1,w2_p2,w2_p1,w2_0,w2_m1,w2_m2,w1_p1_cc,w1_0_cc,w1_m1_cc,w2_p2_cc,w2_p1_cc,w2_0_cc,w2_m1_cc,w2_m2_cc,g1_1,g2_1,g2_2,g12_1,g12_2,hbar,q,Veff),1/(1j*hbar)*sy.diff(e,w2_m2_cc))
 
 
 
@@ -165,14 +164,14 @@ def SMA_GPE_F12_simulation(t,wavefunction1,wavefunction2,atomNumber_,Veff_,q_,g1
 		w2_m2_cc=np.conjugate(w2_m2)
 		
 		
-		Dw1_p1__Dt=complex(Dw1_p1__Dt_func(w1_p1,w1_0,w1_m1,w2_p2,w2_p1,w2_0,w2_m1,w2_m2,w1_p1_cc,w1_0_cc,w1_m1_cc,w2_p2_cc,w2_p1_cc,w2_0_cc,w2_m1_cc,w2_m2_cc,g1_1_,g2_1_,g2_2_,g12_1_,g12_2_,hbar_,q_,atomNumber_,Veff_))
-		Dw1_0__Dt=  complex(Dw1_0__Dt_func(w1_p1,w1_0,w1_m1,w2_p2,w2_p1,w2_0,w2_m1,w2_m2,w1_p1_cc,w1_0_cc,w1_m1_cc,w2_p2_cc,w2_p1_cc,w2_0_cc,w2_m1_cc,w2_m2_cc,g1_1_,g2_1_,g2_2_,g12_1_,g12_2_,hbar_,q_,atomNumber_,Veff_))
-		Dw1_m1__Dt=complex(Dw1_m1__Dt_func(w1_p1,w1_0,w1_m1,w2_p2,w2_p1,w2_0,w2_m1,w2_m2,w1_p1_cc,w1_0_cc,w1_m1_cc,w2_p2_cc,w2_p1_cc,w2_0_cc,w2_m1_cc,w2_m2_cc,g1_1_,g2_1_,g2_2_,g12_1_,g12_2_,hbar_,q_,atomNumber_,Veff_))
-		Dw2_p2__Dt=complex(Dw2_p2__Dt_func(w1_p1,w1_0,w1_m1,w2_p2,w2_p1,w2_0,w2_m1,w2_m2,w1_p1_cc,w1_0_cc,w1_m1_cc,w2_p2_cc,w2_p1_cc,w2_0_cc,w2_m1_cc,w2_m2_cc,g1_1_,g2_1_,g2_2_,g12_1_,g12_2_,hbar_,q_,atomNumber_,Veff_))
-		Dw2_p1__Dt=complex(Dw2_p1__Dt_func(w1_p1,w1_0,w1_m1,w2_p2,w2_p1,w2_0,w2_m1,w2_m2,w1_p1_cc,w1_0_cc,w1_m1_cc,w2_p2_cc,w2_p1_cc,w2_0_cc,w2_m1_cc,w2_m2_cc,g1_1_,g2_1_,g2_2_,g12_1_,g12_2_,hbar_,q_,atomNumber_,Veff_))
-		Dw2_0__Dt=  complex(Dw2_0__Dt_func(w1_p1,w1_0,w1_m1,w2_p2,w2_p1,w2_0,w2_m1,w2_m2,w1_p1_cc,w1_0_cc,w1_m1_cc,w2_p2_cc,w2_p1_cc,w2_0_cc,w2_m1_cc,w2_m2_cc,g1_1_,g2_1_,g2_2_,g12_1_,g12_2_,hbar_,q_,atomNumber_,Veff_))
-		Dw2_m1__Dt=complex(Dw2_m1__Dt_func(w1_p1,w1_0,w1_m1,w2_p2,w2_p1,w2_0,w2_m1,w2_m2,w1_p1_cc,w1_0_cc,w1_m1_cc,w2_p2_cc,w2_p1_cc,w2_0_cc,w2_m1_cc,w2_m2_cc,g1_1_,g2_1_,g2_2_,g12_1_,g12_2_,hbar_,q_,atomNumber_,Veff_))
-		Dw2_m2__Dt=complex(Dw2_m2__Dt_func(w1_p1,w1_0,w1_m1,w2_p2,w2_p1,w2_0,w2_m1,w2_m2,w1_p1_cc,w1_0_cc,w1_m1_cc,w2_p2_cc,w2_p1_cc,w2_0_cc,w2_m1_cc,w2_m2_cc,g1_1_,g2_1_,g2_2_,g12_1_,g12_2_,hbar_,q_,atomNumber_,Veff_))
+		Dw1_p1__Dt=complex(Dw1_p1__Dt_func(w1_p1,w1_0,w1_m1,w2_p2,w2_p1,w2_0,w2_m1,w2_m2,w1_p1_cc,w1_0_cc,w1_m1_cc,w2_p2_cc,w2_p1_cc,w2_0_cc,w2_m1_cc,w2_m2_cc,g1_1_,g2_1_,g2_2_,g12_1_,g12_2_,hbar_,q_,Veff_))
+		Dw1_0__Dt=  complex(Dw1_0__Dt_func(w1_p1,w1_0,w1_m1,w2_p2,w2_p1,w2_0,w2_m1,w2_m2,w1_p1_cc,w1_0_cc,w1_m1_cc,w2_p2_cc,w2_p1_cc,w2_0_cc,w2_m1_cc,w2_m2_cc,g1_1_,g2_1_,g2_2_,g12_1_,g12_2_,hbar_,q_,Veff_))
+		Dw1_m1__Dt=complex(Dw1_m1__Dt_func(w1_p1,w1_0,w1_m1,w2_p2,w2_p1,w2_0,w2_m1,w2_m2,w1_p1_cc,w1_0_cc,w1_m1_cc,w2_p2_cc,w2_p1_cc,w2_0_cc,w2_m1_cc,w2_m2_cc,g1_1_,g2_1_,g2_2_,g12_1_,g12_2_,hbar_,q_,Veff_))
+		Dw2_p2__Dt=complex(Dw2_p2__Dt_func(w1_p1,w1_0,w1_m1,w2_p2,w2_p1,w2_0,w2_m1,w2_m2,w1_p1_cc,w1_0_cc,w1_m1_cc,w2_p2_cc,w2_p1_cc,w2_0_cc,w2_m1_cc,w2_m2_cc,g1_1_,g2_1_,g2_2_,g12_1_,g12_2_,hbar_,q_,Veff_))
+		Dw2_p1__Dt=complex(Dw2_p1__Dt_func(w1_p1,w1_0,w1_m1,w2_p2,w2_p1,w2_0,w2_m1,w2_m2,w1_p1_cc,w1_0_cc,w1_m1_cc,w2_p2_cc,w2_p1_cc,w2_0_cc,w2_m1_cc,w2_m2_cc,g1_1_,g2_1_,g2_2_,g12_1_,g12_2_,hbar_,q_,Veff_))
+		Dw2_0__Dt=  complex(Dw2_0__Dt_func(w1_p1,w1_0,w1_m1,w2_p2,w2_p1,w2_0,w2_m1,w2_m2,w1_p1_cc,w1_0_cc,w1_m1_cc,w2_p2_cc,w2_p1_cc,w2_0_cc,w2_m1_cc,w2_m2_cc,g1_1_,g2_1_,g2_2_,g12_1_,g12_2_,hbar_,q_,Veff_))
+		Dw2_m1__Dt=complex(Dw2_m1__Dt_func(w1_p1,w1_0,w1_m1,w2_p2,w2_p1,w2_0,w2_m1,w2_m2,w1_p1_cc,w1_0_cc,w1_m1_cc,w2_p2_cc,w2_p1_cc,w2_0_cc,w2_m1_cc,w2_m2_cc,g1_1_,g2_1_,g2_2_,g12_1_,g12_2_,hbar_,q_,Veff_))
+		Dw2_m2__Dt=complex(Dw2_m2__Dt_func(w1_p1,w1_0,w1_m1,w2_p2,w2_p1,w2_0,w2_m1,w2_m2,w1_p1_cc,w1_0_cc,w1_m1_cc,w2_p2_cc,w2_p1_cc,w2_0_cc,w2_m1_cc,w2_m2_cc,g1_1_,g2_1_,g2_2_,g12_1_,g12_2_,hbar_,q_,Veff_))
 		
 		Dw_Dt=[]
 		Dw_Dt+=[np.real(Dw1_p1__Dt),np.imag(Dw1_p1__Dt)]
