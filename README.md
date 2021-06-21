@@ -6,7 +6,7 @@ This is a Python library for GPE meanfield simulations of a F=1,2 spinor BEC und
 * The set of coupled differential equations is integrated by the _Scipy.integrate.odeint_ routine
 
 ### Examples
-Please have a look at an interactive implementation of the library [nbviewer](https://nbviewer.jupyter.org/github/dspsandbox/GPE_SMA_F12/blob/master/GPE_SMA_F1F2_example.ipynb) or by launching [binder](https://mybinder.org/v2/gh/dspsandbox/GPE_SMA_F12/blob/master/GPE_SMA_F1F2_example.ipynb) (launching the interactive server may take up to 1 minutes):
+Please have a look at an interactive implementation of the library [nbviewer](https://nbviewer.jupyter.org/github/dspsandbox/GPE_SMA_F12/blob/master/GPE_SMA_F1F2_example.ipynb) or by launching [binder](https://mybinder.org/v2/gh/dspsandbox/GPE_SMA_F12/blob/master/GPE_SMA_F1F2_example.ipynb/HEAD) (launching the interactive server may take up to 1 minutes):
 
 
 
